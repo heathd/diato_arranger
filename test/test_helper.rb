@@ -12,40 +12,35 @@ class MiniTest::Unit::TestCase
   extend Shoulda::Context::ClassMethods
 end
 
+module MusicalNoteHelper
+  def note(pitch, options = {})
+    [Abc::MusicalNote.new(pitch, options)]
+  end
+  
+  def notes(*pitches)
+    pitches.map {|p| Abc::MusicalNote.new(p) }
+  end
+end
+
 module ParserTestHelper
-  def show_failure(parser, input = nil)
-    input ||= @input
-    puts "#{parser.failure_reason} at line #{parser.failure_line} column #{parser.failure_column}"
-    puts context(input, parser.failure_line, parser.failure_column)
+  
+  def parse_notation(notation_text)
+    preamble = "X:1\nT:Sample\nK:C\n"
+    input = preamble + notation_text + "\n"
+    @parser.parse(input).notes
   end
   
-  def context(input, line, column = nil)
-    context = []
-    lines = input.split(/\r\n|\n|\r/, -1)
-    from = [0, line - 3].max
-    to = [lines.size, line + 3].min
-    (from...to).each do |i|
-      if column and i+1 == line
-        context << "     " + ("-" * (column - 1)) + "v"
-      end
-      context << ("%3d" % (i+1)) + ": " + lines[i]
+  def assert_parsable(input)
+    assert @parser.parse(input), lambda { @parser.failure_reason }
+  end
+  
+  def show_notes(result)
+    puts "\n"
+    bars = result.notes.join.scan(/.{8}/)
+    lines = bars.each_slice(4).map do |bars|
+      bars.join " | "
     end
-    context.join("\n")
-  end
-  
-  def line_and_col(input, failure_index)
-    prefix = input[0...failure_index]
-    prefix_lines = prefix.split(/\r\n|\n|\r/, -1)
-    failure_line = prefix_lines.size
-    failure_column = prefix_lines.last.size + 1
-    [failure_line, failure_column]
-  end
-  
-  def show_failure2(failure, input = nil)
-    input ||= @input
-    lineno, colno = line_and_col(input, failure.index)
-    puts "#{failure} at line #{lineno} col #{colno}"
-    puts context(input, lineno, colno)
-    puts "\n\n"
+    puts lines
+    puts "\n"
   end
 end

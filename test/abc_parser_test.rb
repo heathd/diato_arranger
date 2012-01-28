@@ -3,6 +3,7 @@ require_relative '../lib/abc_parser'
 
 class AbcParserTest < MiniTest::Unit::TestCase
   include ParserTestHelper
+  include MusicalNoteHelper
   
   def setup
     @parser = AbcParser.new
@@ -11,18 +12,6 @@ class AbcParserTest < MiniTest::Unit::TestCase
   def fixture(name)
     path = File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
     File.read(path)
-  end
-  
-  def assert_parseable(input)
-    result = @parser.parse(input)
-    assert result, lambda { @parser.failure_reason }
-    result
-  end
-  
-  def parse_notation(notation_text)
-    preamble = "X:1\nT:Sample\nK:C\n"
-    input = preamble + notation_text + "\n"
-    @parser.parse(input).notes
   end
   
   def note(pitch, options = {})
@@ -39,11 +28,7 @@ class AbcParserTest < MiniTest::Unit::TestCase
     end
     
     should "parse" do
-      result = @parser.parse(@input)
-      unless result
-        @parser.terminal_failures.each { |f| show_failure(f) }
-      end
-      assert result, "Parsed ok"
+      assert_parsable @input
     end
   end
   
@@ -90,19 +75,11 @@ class AbcParserTest < MiniTest::Unit::TestCase
     end
     
     should "parse" do
-      assert_parseable(@input)
+      assert_parsable @input
     end
     
-    should "show notes" do
-      result = @parser.parse(@input)
-      puts "\n"
-      bars = result.notes.join.scan(/.{8}/)
-      lines = bars.each_slice(4).map do |bars|
-        bars.join " | "
-      end
-      puts lines
-      puts "\n"
-      
+    should_eventually "show notes" do
+      show_notes(@parser.parse(@input))
     end
   end
 end
