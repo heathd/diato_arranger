@@ -1,0 +1,207 @@
+grammar Abc
+  rule abc_tune
+    abc_header abc_music
+  end
+
+  rule abc_header
+    field_number comment* field_title other_fields* field_key
+  end
+  
+  rule field_number
+    "X:" digit+ end_of_line
+  end
+
+  rule field_title
+    "T:" text end_of_line
+  end
+
+  rule other_fields
+    field_composer / field_default_length / field_meter / field_tempo
+    / field_voice / field_transcription_notes / field_rhythm /
+    comment
+  end
+    
+  rule field_composer
+    "C:" text end_of_line
+  end
+  
+  rule field_transcription_notes
+    "Z:" text end_of_line
+  end
+  
+  rule field_rhythm
+    "R:" text end_of_line
+  end
+  
+  rule field_default_length
+    "L:" note_length_strict end_of_line
+  end
+  
+  rule field_meter
+    "M:" meter end_of_line
+  end
+  
+  rule field_tempo
+    "Q:" tempo end_of_line
+  end
+  
+  rule field_voice
+    "V:" text end_of_line
+  end
+  
+  rule field_key
+    "K:" key end_of_line
+  end
+
+  rule key
+    keynote mode_minor?
+  end
+  
+  rule keynote
+    basenote key_accidental?
+  end
+  
+  rule key_accidental
+    "#" / "b"
+  end
+  
+  rule mode_minor
+    "m"
+  end
+  
+  rule meter
+    "C" / "C|" / meter_fraction
+  end
+  
+  rule meter_fraction
+    digit+ "/" digit+ 
+  end
+  
+  rule tempo
+    digit+ 
+  end
+  
+  rule digit
+    [0-9]
+  end
+  
+  rule text
+    (!newline .)*
+  end
+  
+  rule abc_music
+    abc_line+
+  end
+  
+  rule abc_line
+    (element+ newline) / mid_tune_field / comment / blank_line
+  end
+  
+  rule element
+    symbol_cluster (space symbol_cluster)*
+  end
+  
+  rule symbol_cluster
+    beam / nth_repeat / barline
+  end
+  
+  rule beam
+    tuplet_element / note_element
+  end
+
+  rule space
+    " "*
+  end
+
+  rule note_element
+    note / multi_note
+  end
+  
+  # note is either a pitch or a rest
+  rule note
+    note_or_rest note_length? tie?
+  end
+  
+  rule note_or_rest
+    pitch / rest
+  end
+  
+  rule tie
+    "-"
+  end
+  
+  rule pitch
+    accidental? basenote octave?
+  end
+  
+  rule octave
+    "'"+ / ","+
+  end
+  
+  rule note_length
+    (digit+ "/" digit+)
+    /
+    digit+
+  end
+  
+  rule note_length_strict
+    digit+ "/" digit+
+  end
+  
+  # "^" is sharp, "_" is flat, and "=" is neutral
+  rule accidental
+    "^" / "^^" / "_" / "__" / "="
+  end
+  
+  rule basenote
+    [CDEFGABcdefgab]
+  end
+  
+  rule rest
+    "z"
+  end
+  
+  # tuplets
+  rule tuplet_element
+    tuplet_spec note_element+
+  end
+  
+  rule tuplet_spec
+    "(" digit 
+  end
+  
+  # chords
+  rule multi_note
+    "[" note+ "]"
+  end
+  
+  rule barline
+    "|:" / "||" / "|]" / "|" / ":|" / "[|" 
+  end
+  
+  rule nth_repeat
+    "[1" / "[2" / "|1" / ":|2"
+  end
+  
+  # A voice field might reappear in the middle of a piece
+  # to indicate the change of a voice
+  rule mid_tune_field
+    field_voice
+  end
+  
+  rule blank_line
+    space newline
+  end
+    
+  rule comment
+    "%" text newline
+  end
+  
+  rule end_of_line
+    comment / newline
+  end
+  
+  rule newline
+    [\r] [\n] / [\n] / [\r]
+  end
+end
