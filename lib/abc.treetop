@@ -1,6 +1,10 @@
 grammar Abc
   rule abc_tune
-    abc_header abc_music
+    abc_header abc_music {
+      def notes
+        abc_music.notes
+      end
+    }
   end
 
   rule abc_header
@@ -8,7 +12,7 @@ grammar Abc
   end
   
   rule field_number
-    "X:" digit+ end_of_line
+    "X:" number end_of_line
   end
 
   rule field_title
@@ -74,11 +78,19 @@ grammar Abc
   end
   
   rule meter_fraction
-    digit+ "/" digit+ 
+    positive_number "/" positive_number
   end
   
   rule tempo
-    digit+ 
+    positive_number 
+  end
+  
+  rule positive_number
+    [1-9] digit*
+  end
+  
+  rule number
+    positive_number / "0"
   end
   
   rule digit
@@ -90,23 +102,43 @@ grammar Abc
   end
   
   rule abc_music
-    abc_line+
+    abc_line+ {
+      def notes
+        elements.map(&:notes).flatten
+      end
+    }
   end
   
   rule abc_line
-    (element+ newline) / mid_tune_field / comment / blank_line
+    music_line
+    / 
+    mid_tune_field
+    / 
+    comment
+    / 
+    blank_line
   end
   
-  rule element
-    symbol_cluster (space symbol_cluster)*
+  rule music_line
+    first_cluster:symbol_cluster others:(space symbol_cluster <Cascade>)* newline {
+      def notes
+        first_cluster.notes + others.elements.select {|o| o.respond_to?(:notes)}.map(&:notes).flatten
+      end
+    }
   end
   
   rule symbol_cluster
-    beam / nth_repeat / barline
+    beam <Cascade>
+    / 
+    nth_repeat
+    / 
+    barline
   end
   
   rule beam
-    tuplet_element / note_element
+    tuplet_element+ <Cascade>
+    / 
+    note_element+ <Cascade>
   end
 
   rule space
@@ -114,12 +146,20 @@ grammar Abc
   end
 
   rule note_element
-    note / multi_note
+    note
+    / 
+    multi_note <Cascade>
   end
   
   # note is either a pitch or a rest
   rule note
-    note_or_rest note_length? tie?
+    note_or_rest note_length:note_length tie? {
+      def notes
+        n = note_or_rest.note
+        n = note_length.modify(n) if note_length.respond_to?(:modify)
+        [n]
+      end
+    }
   end
   
   rule note_or_rest
@@ -131,39 +171,77 @@ grammar Abc
   end
   
   rule pitch
-    accidental? basenote octave?
+    accidental? basenote octave:octave? {
+      def note
+        elements
+          .select {|e| e.respond_to?(:modify)}
+          .inject(basenote.note) do |memo, element|
+            element.modify(memo)
+          end
+      end
+    }
   end
   
   rule octave
-    "'"+ / ","+
+    "'"+ {
+      def modify(note)
+        text_value.size.times { note.increment_octave }
+        note
+      end
+    }
+    / 
+    ","+ {
+      def modify(note)
+        text_value.size.times { note.decrement_octave }
+        note
+      end
+    }
   end
   
   rule note_length
-    (digit+ "/" digit+)
-    /
-    digit+
+    numerator:positive_number? denominator:("/" denominator_value:positive_number)? <NoteLength>
   end
   
   rule note_length_strict
-    digit+ "/" digit+
+    positive_number "/" positive_number
   end
   
   # "^" is sharp, "_" is flat, and "=" is neutral
   rule accidental
-    "^" / "^^" / "_" / "__" / "="
+    ("^^" / "^" / "__" / "_" / "=") <Accidental>
   end
   
   rule basenote
-    [CDEFGABcdefgab]
+    octave0_note / octave1_note
+  end
+  
+  rule octave0_note
+    [CDEFGAB] {
+      def note
+        ::Abc::MusicalNote.new(text_value.downcase, octave: 0)
+      end
+    }
+  end
+  
+  rule octave1_note
+    [cdefgab] {
+      def note
+        ::Abc::MusicalNote.new(text_value, octave: 1)
+      end
+    }
   end
   
   rule rest
-    "z"
+    "z" {
+      def note
+        ::Abc::MusicalNote.new(text_value)
+      end
+    }
   end
   
   # tuplets
   rule tuplet_element
-    tuplet_spec note_element+
+    tuplet_spec note_element+ <Cascade>
   end
   
   rule tuplet_spec
