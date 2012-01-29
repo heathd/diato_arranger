@@ -3,6 +3,7 @@ require "bundler/setup"
 Bundler.require(:default, :development, :test)
 require 'minitest/unit'
 require 'minitest/autorun'
+require_relative '../lib/musical_note_helper'
 
 # require 'treetop'
 
@@ -14,46 +15,27 @@ end
 
 module PlayingInstructionHelper
   def push(row, button)
-    PlayingInstruction.new(row, :push, button)
+    PlayableNote.new(row, :push, button)
   end
   
   def pull(row, button)
-    PlayingInstruction.new(row, :pull, button)
-  end
-end
-
-module MusicalNoteHelper
-  def note(pitch, options = {})
-    [Abc::MusicalNote.new(pitch, options)]
-  end
-  
-  def notes(pitches)
-    pitches.map do |p|
-      match = p.match(/(\^?)(.)(-?[0-9])/)
-      if match
-        accidental, p, octave = match[1..3]
-      end
-      Abc::MusicalNote.new(p, octave: octave, accidental: accidental == '^' ? :sharp : nil)
-    end
-  end
-  
-  def accompaniment(pitches)
-    pitches.map do |p|
-      match = p.match(/([CDEFGAB])(m)?([0-9]+)?/)
-      if match
-        note, minor, duration = match[1..3]
-      end
-      Abc::MusicalNote.new(note, chord: minor ? :minor : :major, duration: duration)
-    end
+    PlayableNote.new(row, :pull, button)
   end
 end
 
 module ParserTestHelper
-  
-  def parse_notation(notation_text)
+  def parse_to_result(notation_text)
     preamble = "X:1\nT:Sample\nK:C\n"
     input = preamble + notation_text + "\n"
-    @parser.parse(input).notes
+    @parser.parse(input)
+  end
+  
+  def parse_notation(notation_text)
+    parse_to_result(notation_text).notes
+  end
+  
+  def parse_accompaniment(notation_text)
+    parse_to_result(notation_text).accompaniment(Rational(0,1))
   end
   
   def assert_parsable(input)
@@ -68,5 +50,12 @@ module ParserTestHelper
     end
     puts lines
     puts "\n"
+  end
+end
+
+module FixtureHelper
+  def fixture(name)
+    path = File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
+    File.read(path)
   end
 end

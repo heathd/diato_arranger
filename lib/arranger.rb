@@ -1,8 +1,11 @@
 require_relative 'musical_note'
 require_relative 'playing_instruction'
 require_relative 'note_sequence'
+require_relative 'musical_note_helper'
 
 class Arranger
+  extend MusicalNoteHelper
+  
   def initialize(grid)
     @grid = grid
     @inverse_grid = invert(grid)
@@ -13,8 +16,8 @@ class Arranger
     grid.each do |row, notes_in_each_direction|
       notes_in_each_direction.each do |direction, notes|
         notes.each_with_index do |note, i|
-          inverse[note] ||= []
-          inverse[note] << PlayingInstruction.new(row, direction, i + 1)
+          inverse[note.sound_character] ||= []
+          inverse[note.sound_character] << PlayableNote.new(row, direction, i + 1, note)
         end
       end
     end
@@ -27,16 +30,16 @@ class Arranger
     melody_notes.map do |note|
       possible_direction_constraint = accompaniment_direction(accompaniment, current_beat)
       current_beat += note.duration
-      find_note_in_grid(note, possible_direction_constraint)
+      find_note_in_grid(note, possible_direction_constraint) || UnplayableNote.new(note)
     end
   end
   
   def find_note_in_grid(note, direction = nil)
-    return nil unless @inverse_grid[note]
+    return nil unless @inverse_grid[note.sound_character]
     found = if direction
-      @inverse_grid[note].find { |pi| pi.direction == direction }
+      @inverse_grid[note.sound_character].find { |pi| pi.direction == direction }
     end
-    found || @inverse_grid[note].first
+    found || @inverse_grid[note.sound_character].first
   end
   
   def accompaniment_direction(accompaniment, beat)
@@ -54,21 +57,37 @@ class Arranger
   def self.two_row
     {
       c_row: c_row,
-      g_row: g_row
+      g_row: g_row,
+      accompaniment1: accompaniment1,
+      accompaniment2: accompaniment2,
     }
   end
   
   def self.c_row
     {
-      push: notes(*%w{^g g-1 c e g c1 e1 g1 c2 e2}),
-      pull: notes(*%w{^a b   d f a b  d1 f1 a1 b1})
+      push: notes(%w{^g g-1 c e g c1 e1 g1 c2 e2}),
+      pull: notes(%w{^a b   d f a b  d1 f1 a1 b1})
     }
   end
   
   def self.g_row
     {
-      push: notes(*%w{^c  d-1 g-1 b-1 d  g b d1 g1  b1 d2}),
-      pull: notes(*%w{^d ^f-1 a-1 c   e ^f a c1 e1 ^f1 a1})
+      push: notes(%w{^c  d-1 g-1 b-1 d  g b d1 g1  b1 d2}),
+      pull: notes(%w{^d ^f-1 a-1 c   e ^f a c1 e1 ^f1 a1})
+    }
+  end
+  
+  def self.accompaniment1
+    {
+      push: accompaniment(%w{F Em}),
+      pull: accompaniment(%w{F Am})
+    }
+  end
+
+  def self.accompaniment2
+    {
+      push: accompaniment(%w{C G}),
+      pull: accompaniment(%w{G Dm})
     }
   end
 end

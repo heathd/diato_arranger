@@ -1,10 +1,6 @@
 grammar Abc
   rule abc_tune
-    abc_header abc_music {
-      def notes
-        abc_music.notes
-      end
-    }
+    abc_header abc_music <Cascade>
   end
 
   rule abc_header
@@ -102,11 +98,7 @@ grammar Abc
   end
   
   rule abc_music
-    abc_line+ {
-      def notes
-        elements.map(&:notes).flatten
-      end
-    }
+    abc_line+ <Cascade>
   end
   
   rule abc_line
@@ -124,15 +116,45 @@ grammar Abc
       def notes
         first_cluster.notes + others.elements.select {|o| o.respond_to?(:notes)}.map(&:notes).flatten
       end
+      
+      def scan_element(current_beat, elem_to_scan)
+        result = elem_to_scan.elements.inject([current_beat, []]) do |memo, e|
+          cb, acmp = memo
+          acmp = acmp.dup + e.accompaniment(cb) if e.respond_to?(:accompaniment)
+          cb += e.notes.map(&:duration).inject(0, &:+) if e.respond_to?(:notes)
+          [cb, acmp]
+        end
+        result[1]
+      end
+      
+      def accompaniment(current_beat)
+        first_cluster_duration = first_cluster.notes.map(&:duration).inject(0, &:+)
+        first_cluster.accompaniment(current_beat) + 
+          scan_element(current_beat + first_cluster_duration, others)
+      end
     }
   end
   
   rule symbol_cluster
-    beam <Cascade>
+    beam_with_chord
+    / 
+    beam
     / 
     nth_repeat
     / 
     barline
+  end
+  
+  rule beam_with_chord
+    c:chord_element n:beam {
+      def notes
+        n.notes
+      end
+    
+      def accompaniment(current_beat)
+        c.accompaniment(current_beat)
+      end
+    }
   end
   
   rule beam
@@ -141,6 +163,29 @@ grammar Abc
     note_element+ <Cascade>
   end
 
+  rule chord_element
+    '"' basenote chord_type '"' {
+      def notes
+        []
+      end
+      
+      def accompaniment(current_beat)
+        note = basenote.note
+        note.beat_number = current_beat
+        if chord_type.text_value == 'm'
+          note.chord = :minor
+        else
+          note.chord = :major
+        end
+        [note]
+      end
+    }
+  end
+  
+  rule chord_type
+    "m"?
+  end
+  
   rule space
     " "*
   end
@@ -158,6 +203,10 @@ grammar Abc
         n = note_or_rest.note
         n = note_length.modify(n) if note_length.respond_to?(:modify)
         [n]
+      end
+      
+      def accompaniment(current_beat)
+        []
       end
     }
   end

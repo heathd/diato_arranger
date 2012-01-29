@@ -5,6 +5,18 @@ module Abc
     def notes
       elements ? elements.select {|e| e.respond_to?(:notes)}.map(&:notes).flatten : []
     end
+
+    def accompaniment(current_beat)
+      if elements
+        result = elements.inject([current_beat, []]) do |memo, e|
+          cb, acmp = memo
+          acmp += e.accompaniment(cb) if e.respond_to?(:accompaniment)
+          cb += e.notes.map(&:duration).inject(0, &:+) if e.respond_to?(:notes)
+          [cb, acmp]
+        end
+        result[1]
+      end
+    end
   end
   
   module NoteLength

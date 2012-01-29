@@ -4,16 +4,12 @@ require_relative '../lib/abc_parser'
 class AbcParserTest < MiniTest::Unit::TestCase
   include ParserTestHelper
   include MusicalNoteHelper
+  include FixtureHelper
   
   def setup
     @parser = AbcParser.new
   end
 
-  def fixture(name)
-    path = File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
-    File.read(path)
-  end
-  
   context "minimal example (headers only)" do
     setup do
       @input = fixture('minimal.abc')
@@ -58,6 +54,16 @@ class AbcParserTest < MiniTest::Unit::TestCase
     
     should "skip barlines" do
       assert_equal notes(%w{c d e f}), parse_notation("CD | EF")
+    end
+    
+    should "parse melody containing chord indications" do
+      # assert_equal notes(%w{c0}), parse_notation('"Cm"C')
+      assert_equal accompaniment(%w{D}), parse_accompaniment('"D"C')
+    end
+
+    should "accompaniment has beat number determined by attachment to notes" do
+      assert_equal accompaniment(%w{Cm D}), parse_accompaniment('"Cm"C D2 "D"E')
+      assert_equal [Rational(0, 1), Rational(3,1)], parse_accompaniment('"Cm"C D2 "D"E').map(&:beat_number)
     end
   end
   
