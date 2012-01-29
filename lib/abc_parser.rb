@@ -1,3 +1,5 @@
+require_relative 'musical_note'
+
 module Abc
   module Cascade
     def notes
@@ -27,53 +29,6 @@ module Abc
       end
       note.accidental = accidental
       note
-    end
-  end
-        
-  class MusicalNote
-    ATTRIBUTES = [:pitch, :duration, :octave, :accidental]
-    attr_accessor *ATTRIBUTES
-    
-    def initialize(pitch, options = {})
-      @pitch = pitch
-      @duration = (options[:duration] || Rational(1)).to_r
-      @octave = options[:octave] || 0
-      @accidental = options[:accidental] || :unaltered
-    end
-    
-    def multiply_duration(multiplication_factor)
-      @duration = @duration * multiplication_factor
-      self
-    end
-    
-    def increment_octave
-      @octave += 1
-      self
-    end
-
-    def decrement_octave
-      @octave -= 1
-      self
-    end
-    
-    def ==(other)
-      ATTRIBUTES.all? do |attr|
-        self.send(attr) == other.send(attr)
-      end
-    end
-    
-    def accidental_symbol
-      case @accidental
-      when :sharp then '#'
-      when :flat then 'b'
-      when :natural then '='
-      when :unaltered then ''
-      end
-    end
-    
-    def to_s
-      "#{@pitch}#{@octave}#{accidental_symbol}" + 
-        "__" * (duration - 1)
     end
   end
 end

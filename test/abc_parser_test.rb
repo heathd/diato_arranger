@@ -14,14 +14,6 @@ class AbcParserTest < MiniTest::Unit::TestCase
     File.read(path)
   end
   
-  def note(pitch, options = {})
-    [Abc::MusicalNote.new(pitch, options)]
-  end
-  
-  def notes(*pitches)
-    pitches.map {|p| Abc::MusicalNote.new(p) }
-  end
-  
   context "minimal example (headers only)" do
     setup do
       @input = fixture('minimal.abc')
@@ -65,7 +57,7 @@ class AbcParserTest < MiniTest::Unit::TestCase
     end
     
     should "skip barlines" do
-      assert_equal notes('c', 'd', 'e', 'f'), parse_notation("CD | EF")
+      assert_equal notes(%w{c d e f}), parse_notation("CD | EF")
     end
   end
   
