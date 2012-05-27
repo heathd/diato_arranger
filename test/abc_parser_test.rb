@@ -65,8 +65,22 @@ class AbcParserTest < MiniTest::Unit::TestCase
       assert_equal accompaniment(%w{Cm D}), parse_accompaniment('"Cm"C D2 "D"E')
       assert_equal [Rational(0, 1), Rational(3,1)], parse_accompaniment('"Cm"C D2 "D"E').map(&:beat_number)
     end
+    
+    should "pay attention to musical key" do
+      key = "G"
+      notes = "CDEFGAB"
+      result = @parser.parse("X:1\nT:Minimal\nK:#{key}\n#{notes}\n")
+      assert_equal ::Abc::KeySignature.new("G"), result.key_signature
+      # assert_equal note('c', accidental: :natural), result.notes[0]
+      # assert_equal note('d', accidental: :natural), result.notes[1]
+      # assert_equal note('e', accidental: :natural), result.notes[2]
+      # assert_equal note('f', accidental: :sharp), result.notes[3]
+      # assert_equal note('g', accidental: :natural), result.notes[4]
+      # assert_equal note('a', accidental: :natural), result.notes[5]
+      # assert_equal note('b', accidental: :natural), result.notes[6]
+    end
   end
-  
+
   context "longer example (inc tune)" do
     setup do
       @input = fixture('sample.abc')

@@ -1,6 +1,10 @@
 grammar Abc
   rule abc_tune
-    abc_header abc_music <Cascade>
+    abc_header abc_music <Cascade> {
+      def key_signature
+        ::Abc::KeySignature.new("G")
+      end
+    }
   end
 
   rule abc_header
