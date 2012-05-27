@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require_relative '../lib/arranger'
+require_relative '../lib/abc_parser'
+require_relative '../lib/html_output'
+
+def usage
+  puts "Usage: arrange <file.abc>"
+  exit(1)
+end
+
+filename = ARGV[0]
+
+usage unless filename
+
+
+@arranger = Arranger.new(Arranger.two_row)
+file = File.open(filename) { |f| f.read }
+result = AbcParser.new.parse(file)
+puts HtmlOutput.new(@arranger.arrange(result.notes, result.accompaniment(0)))
