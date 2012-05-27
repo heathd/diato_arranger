@@ -22,6 +22,7 @@ GEM
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
     shoulda-context (1.0.0)
+    thor (0.14.6)
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
@@ -35,4 +36,5 @@ DEPENDENCIES
   rake
   ruby-debug19
   shoulda-context
+  thor
   treetop

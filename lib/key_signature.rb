@@ -32,5 +32,14 @@ module Abc
       order_of_flats[0...number_of_flats]
     end
 
+    def modifier_of_note(note)
+      if sharps.include?(note.upcase)
+        :sharp
+      elsif flats.include?(note.upcase)
+        :flat
+      else
+        nil
+      end
+    end
   end
 end

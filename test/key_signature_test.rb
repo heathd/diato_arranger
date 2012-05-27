@@ -18,7 +18,6 @@ class KeySignatureTest < MiniTest::Unit::TestCase
     assert_equal [], k.sharps, "Key of #{key_signature} should have no sharps, but had #{k.sharps}"
   end
 
-
   context "major keys" do
     should "have no modifications in C major" do
       key_signature = ::Abc::KeySignature.new('C')

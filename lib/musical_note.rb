@@ -11,13 +11,21 @@ module Abc
       @accidental = options[:accidental] || :unaltered
       @is_bass = options[:is_bass] || false
       @chord = options[:chord] || false
+      @key_signature = options[:key_signature] || KeySignature.new("C", 'major')
       @beat_number = options[:beat_number]
     end
 
     def pitch_number
       i = %w{c c+ d d+ e f f+ g g+ a a+ b}.find_index(@pitch) || raise("No such pitch #{@pitch}")
-      i += 1 if @accidental == :sharp
-      i -= 1 if @accidental == :flat
+
+      accidental = if @accidental == :unaltered
+        @key_signature.modifier_of_note(@pitch)
+      else
+        @accidental
+      end
+
+      i += 1 if accidental == :sharp
+      i -= 1 if accidental == :flat
       i += @octave * 12
       i
     end

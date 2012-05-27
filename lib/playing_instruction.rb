@@ -1,8 +1,16 @@
 class PlayingInstruction
   attr_accessor :note
+  attr_accessor :duration
 
   def initialize(note = nil)
     @note = note
+    @duration = nil
+  end
+
+  def with_duration(duration)
+    new_playing_instruction = self.clone
+    new_playing_instruction.duration = duration
+    new_playing_instruction
   end
 end
 
@@ -16,7 +24,7 @@ class PlayableNote < PlayingInstruction
     @button_number = button_number
     super(note)
   end
-  
+
   def eql?(other)
     self.class == other.class &&
       ATTRIBUTES.all? do |attr|

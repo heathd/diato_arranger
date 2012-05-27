@@ -1,3 +1,4 @@
+require 'treetop'
 require_relative 'musical_note'
 require_relative 'key_signature'
 

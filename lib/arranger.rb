@@ -2,12 +2,17 @@ require_relative 'musical_note'
 require_relative 'playing_instruction'
 require_relative 'note_sequence'
 require_relative 'musical_note_helper'
+require_relative 'key_signature'
 
 class Arranger
   extend MusicalNoteHelper
   
   def initialize(grid)
     @grid = grid
+
+    # The inverse grid maps a note's sound character to a list of possible playing instructions.
+    # The sound character is the pitch (including octave) plus whether it's a base/accompaniment note.
+    # The playing instruction says which button to push and in which direction the bellows move.
     @inverse_grid = invert(grid)
   end
   
@@ -30,7 +35,7 @@ class Arranger
     melody_notes.map do |note|
       possible_direction_constraint = accompaniment_direction(accompaniment, current_beat)
       current_beat += note.duration
-      find_note_in_grid(note, possible_direction_constraint) || UnplayableNote.new(note)
+      (find_note_in_grid(note, possible_direction_constraint) || UnplayableNote.new(note)).with_duration(note.duration)
     end
   end
   

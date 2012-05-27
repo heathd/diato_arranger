@@ -71,23 +71,6 @@ class ArrangerTest < MiniTest::Unit::TestCase
     end
   end
   
-  class HtmlOutput
-    def initialize(arrangement)
-      @arrangement = arrangement
-    end
-    
-    def to_s
-      @arrangement.map do |playing_instruction|
-        case playing_instruction
-        when PlayableNote then
-          "<div class='#{playing_instruction.direction} #{playing_instruction.row}'>#{playing_instruction.button_number}<span>#{playing_instruction.note.to_s(false)}</span></div>\n"
-        when UnplayableNote then
-          "<div class='unplayable'>?<span>#{playing_instruction.note}</span></div>\n"
-        end
-      end.join
-    end
-  end
-  
   context "nue pnues" do
     should "arrange it" do
       @arranger = Arranger.new(Arranger.two_row)
