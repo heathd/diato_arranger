@@ -35,8 +35,12 @@ module DiatoArranger
       current_beat = Rational(0)
       accompaniment = NoteSequence.new(accompaniment_notes)
       melody_notes.map do |note|
+        
+        # TODO: change this to be a list of possible directions
         possible_direction_constraint = accompaniment_direction(accompaniment, current_beat)
-
+        
+        # TODO: Prefer to continue in the current playing direction if there's
+        # a choice of multiple directions
         playing_instruction = (find_note_in_grid(note, possible_direction_constraint) || UnplayableNote.new(note))
           .with_duration(note.duration)
           .with_accompaniment(accompaniment.at(current_beat))
@@ -45,6 +49,9 @@ module DiatoArranger
       end
     end
   
+    # TODO: let this return a list of possible ways of playing the note
+    # (optionally with the specified constraints) so that we could select from
+    # possibilities
     def find_note_in_grid(note, direction = nil)
       return nil unless @inverse_grid[note.sound_character]
       found = if direction
@@ -53,6 +60,7 @@ module DiatoArranger
       found || @inverse_grid[note.sound_character].first
     end
   
+    # TODO: this also needs to return all possible directions
     def accompaniment_direction(accompaniment, beat)
       note = accompaniment.at(beat)
       if note
