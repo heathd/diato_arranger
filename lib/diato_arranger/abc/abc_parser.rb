@@ -47,6 +47,6 @@ module DiatoArranger
       end
     end
   end
-
-  Treetop.load File.expand_path("abc", File.dirname(__FILE__))
 end
+
+Treetop.load File.expand_path("abc", File.dirname(__FILE__))
