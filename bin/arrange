@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
-require_relative '../lib/arranger'
-require_relative '../lib/abc_parser'
-require_relative '../lib/html_output'
+require_relative '../lib/diato_arranger/arranger'
+require_relative '../lib/diato_arranger/abc/abc_parser'
+require_relative '../lib/diato_arranger/html_output'
 
 def usage
   puts "Usage: arrange <file.abc>"
@@ -15,7 +15,7 @@ filename = ARGV[0]
 usage unless filename
 
 
-@arranger = Arranger.new(Arranger.two_row)
+@arranger = DiatoArranger::Arranger.new(DiatoArranger::Arranger.two_row)
 file = File.open(filename) { |f| f.read }
-result = AbcParser.new.parse(file)
-puts HtmlOutput.new(@arranger.arrange(result.notes, result.accompaniment(0)))
+result = DiatoArranger::Abc::AbcParser.new.parse(file)
+puts DiatoArranger::HtmlOutput.new(@arranger.arrange(result.notes, result.accompaniment(0)))
