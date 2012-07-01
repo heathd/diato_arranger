@@ -46,7 +46,7 @@ module DiatoArranger
         bar << case playing_instruction
         when PlayableNote then
           "<div class='note #{duration_class(playing_instruction.duration)}'>" +
-            "<span class='accompaniment #{playing_instruction.direction}'>#{playing_instruction.accompaniment}</span>" +
+            "<span class='accompaniment #{playing_instruction.direction}'>#{playing_instruction.accompaniment && playing_instruction.accompaniment.note}</span>" +
             "<span class='duration #{playing_instruction.direction}' style='top: #{50 - playing_instruction.note.pitch_number*2}px'>#{duration_symbol(playing_instruction.duration)}</span>" +
             "<span class='instruction #{playing_instruction.direction} #{playing_instruction.row}'>#{playing_instruction.button_number}</span>" +
             "<span class='letter #{playing_instruction.direction}'>#{playing_instruction.note.to_s(false)}</span>" +

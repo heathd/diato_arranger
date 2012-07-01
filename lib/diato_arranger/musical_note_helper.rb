@@ -5,7 +5,7 @@ module DiatoArranger
     end
   
     def notes(pitches)
-      pitches.map.with_index do |p, i|
+      [*pitches].map.with_index do |p, i|
         match = p.match(/(\^?)(.)(-?[0-9])?/)
         if match
           accidental, p, octave = match[1..3]
@@ -15,13 +15,21 @@ module DiatoArranger
     end
   
     def accompaniment(pitches)
-      pitches.map.with_index do |p, i|
+      [*pitches].map.with_index do |p, i|
         match = p.match(/([CDEFGAB])(m)?([0-9]+)?/)
         if match
           note, minor, duration = match[1..3]
         end
         Abc::MusicalNote.new(note.downcase, chord: minor ? :minor : :major, duration: duration, beat_number: i)
       end
+    end
+    
+    def one_note(pitch, options)
+      Abc::MusicalNote.new(pitch, options)
+    end
+    
+    def accompaniment_note(pitch)
+      accompaniment(pitch).first
     end
   end
 end

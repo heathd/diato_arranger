@@ -44,7 +44,10 @@ module DiatoArranger
     alias == eql?
   
     def to_s
-      "#{direction}(#{row}:#{button_number})=#{note}"
+      s = "#{direction}(#{row}:#{button_number})=#{note}"
+      s << " + #{accompaniment.to_s}" if accompaniment
+      s << " [duration: #{duration}]" if duration
+      s
     end
   end
 

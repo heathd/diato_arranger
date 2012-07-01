@@ -34,45 +34,47 @@ module DiatoArranger
     def arrange(melody_notes, accompaniment_notes = nil)
       current_beat = Rational(0)
       accompaniment = NoteSequence.new(accompaniment_notes)
-      melody_notes.map do |note|
-        
-        # TODO: change this to be a list of possible directions
-        possible_direction_constraint = accompaniment_direction(accompaniment, current_beat)
-        
-        # TODO: Prefer to continue in the current playing direction if there's
-        # a choice of multiple directions
-        playing_instruction = (find_note_in_grid(note, possible_direction_constraint) || UnplayableNote.new(note))
-          .with_duration(note.duration)
-          .with_accompaniment(accompaniment.at(current_beat))
+      all_possible_ways_of_playing = []
+      
+      melody_notes.each do |note|
+        all_possible_ways_of_playing << possible_ways_to_play(accompaniment.at(current_beat), note)
         current_beat += note.duration
-        playing_instruction
+      end
+      
+      optimal_playing(all_possible_ways_of_playing)
+    end
+    
+    def possible_ways_to_play(accompaniment_note, melody_note)
+      accompaniment = accompaniment_note && @inverse_grid[accompaniment_note.sound_character] || []
+      melody = @inverse_grid[melody_note.sound_character]
+      
+      [:push, :pull].map do |direction|
+        melody.select {|pi| direction == pi.direction }.map do |melody_pi|
+          accompaniment_pis = accompaniment.select {|pi| direction == pi.direction }
+          (accompaniment_pis.any? ? accompaniment_pis : [nil]).map do |accompaniment_pi|
+            melody_pi
+              .with_accompaniment(accompaniment_pi)
+              .with_duration(melody_note.duration)
+          end
+        end
+      end.flatten
+    end
+    
+    def optimal_playing(all_possible_ways_of_playing)
+      previous_instruction = nil
+      all_possible_ways_of_playing.map do |ways| 
+        instruction = ways.sort_by { |way| score(way, previous_instruction) }.last
+        previous_instruction = instruction
       end
     end
   
-    # TODO: let this return a list of possible ways of playing the note
-    # (optionally with the specified constraints) so that we could select from
-    # possibilities
-    def find_note_in_grid(note, direction = nil)
-      return nil unless @inverse_grid[note.sound_character]
-      found = if direction
-        @inverse_grid[note.sound_character].find { |pi| pi.direction == direction }
+    def score(playing_instruction, previous_instruction)
+      score = playing_instruction.accompaniment.nil? ? 0 : 10
+      if previous_instruction && playing_instruction.direction == previous_instruction.direction
+        score += 5
       end
-      found || @inverse_grid[note.sound_character].first
+      score
     end
-  
-    # TODO: this also needs to return all possible directions
-    def accompaniment_direction(accompaniment, beat)
-      note = accompaniment.at(beat)
-      if note
-        playing_direction_of(note)
-      end
-    end
-  
-    def playing_direction_of(note)
-      found = find_note_in_grid(note)
-      found && found.direction
-    end
-  
     def self.two_row
       {
         c_row: c_row,
