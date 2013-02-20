@@ -1,0 +1,59 @@
+div.row {
+  border-bottom: 1px solid black;
+  float: left;
+  clear: left;
+  margin-top: 4em;
+}
+.playing_instructions div.note {
+  float: left;
+  position: relative;
+  width: 2em;
+  height: 10em;
+}
+.playing_instructions div.note.duration_2 {
+  width: 4em;
+}
+.playing_instructions div.note.duration_3 {
+  width: 6em;
+}
+.playing_instructions div.note.duration_4 {
+  width: 8em;
+}
+.playing_instructions .barline {
+  float: left;
+  height: 10em;
+  width: 1px;
+  margin-right: 0.5em;
+  background-color: black;
+}
+div.note span.accompaniment {
+  position: absolute;
+  top: 0;
+}
+
+div.note span.duration {
+  position: absolute;
+  top: 1em;
+  font-face: quivra;
+  font-size: 2em;
+}
+div.note span.instruction.c_row {
+  position: absolute;
+  top: 4em;
+}
+div.note span.instruction.g_row {
+  position: absolute;
+  top: 6em;
+}
+div.note span.letter {
+  position: absolute;
+  top: 8em;
+}
+.pull {
+  text-decoration: underline
+}
+
+form.abcform textarea {
+  width: 60em;
+  height: 20em;
+}

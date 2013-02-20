@@ -1,18 +1,28 @@
 require 'erb'
 module DiatoArranger
-  class HtmlOutput
-    def initialize(arrangement)
-      @arrangement = arrangement
+  class Page
+    def initialize(binding)
+      @binding = binding
     end
-  
+
     def load_template_file
-      File.read(File.dirname(__FILE__) + "/../../templates/html_output.html.erb")
+      File.read(File.dirname(__FILE__) + "/../../templates/layout.html.erb")
     end
     
     def to_s
-      ERB.new(load_template_file).result(binding)
+      ERB.new(load_template_file).result(@binding)
     end
+  end
 
+  class HtmlOutput < Page
+    attr_reader :abc
+    
+    def initialize(arrangement, abc)
+      @arrangement = arrangement
+      @abc = abc
+      super(binding)
+    end
+  
     def duration_class(duration)
       duration_multiple = (duration / shortest_note_duration).to_i
       "duration_#{duration_multiple}"

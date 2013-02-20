@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Arrangement</title>
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+</head>
+
+<body>
+<h1>Music arrangement</h1>
+
+<p>Musical notes not displaying correctly? Maybe you need to download the <a href="http://www.quivira-font.com/">quivra font<a/>.</p>
+
+<% if defined?(errors) %>
+<p class="errors"><%= errors %></p>
+<% end %>
+
+<form method="POST" class="abcform" action="/create">
+  <textarea name="abc"><%= abc %></textarea>
+  <br />
+  <input type="submit">
+</form>
+
+<% if defined?(music_instructions) %> 
+  <div class="playing_instructions">
+    <%= music_instructions %>
+  </div>
+<% end %>
+</body>
+</html>

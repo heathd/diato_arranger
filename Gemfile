@@ -9,6 +9,6 @@ group :development, :test do
   gem 'shoulda-context'
   gem 'mocha'
   gem 'minitest'
-  gem 'ruby-debug19'
+  gem 'debugger'
 end
 

@@ -1,22 +1,22 @@
-require_relative "../arranger"
-require_relative "../html_output"
-require_relative "../abc/abc_parser"
+require 'rack/request'
+require "diato_arranger/arranger"
+require "diato_arranger/html_output"
+require "diato_arranger/abc/abc_parser"
+require 'diato_arranger/tunes_repository'
+require 'diato_arranger/controllers/create'
+require 'diato_arranger/controllers/show_tune'
+require 'diato_arranger/controllers/homepage'
 
 module DiatoArranger
-  module Rack
-    class App
-      def filename
-        File.dirname(__FILE__) + "/../../../test/fixtures/nue_pnues.abc"
-      end
-      
-      def call(env)
-        arranger = DiatoArranger::Arranger.new(DiatoArranger::Arranger.two_row)
-        result = DiatoArranger::Abc::AbcParser.new.parse(File.read(filename))
-        output =  DiatoArranger::HtmlOutput.new(arranger.arrange(result.notes, result.accompaniment(0)))
-        # output = ""
-
-        [200, {"Content-Type" => "text/html"}, [output.to_s]]
-      end
-    end
+  class NotFound < RuntimeError; end
+  
+  App = Rack::Builder.new do
+    use Rack::CommonLogger
+    use Rack::ShowExceptions
+    use Rack::Lint
+    use Rack::Static, urls: ["/static"]
+    map("/") { run DiatoArranger::Controllers::Homepage.new }
+    map("/create") { run DiatoArranger::Controllers::Create.new }
+    map("/tune/") { run DiatoArranger::Controllers::ShowTune.new }
   end
 end
