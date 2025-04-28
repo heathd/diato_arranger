@@ -8,21 +8,33 @@ module DiatoArranger
     def load_template_file
       File.read(File.dirname(__FILE__) + "/../../templates/layout.html.erb")
     end
-    
+
     def to_s
       ERB.new(load_template_file).result(@binding)
     end
   end
 
-  class HtmlOutput < Page
+  class HtmlOutput
     attr_reader :abc
-    
-    def initialize(arrangement, abc)
+
+    def initialize(arrangement, abc = nil)
       @arrangement = arrangement
       @abc = abc
-      super(binding)
     end
-  
+
+    def to_s
+      layout = File.read(File.dirname(__FILE__) + "/../../templates/layout2.html.erb")
+      ERB.new(layout).result(binding)
+    end
+
+    def load_view_template(name)
+      ERB.new(File.read(File.dirname(__FILE__) + "/views/#{name}"))
+    end
+
+    def content
+      load_view_template('show_tune.html.erb').result(binding)
+    end
+
     def duration_class(duration)
       duration_multiple = (duration / shortest_note_duration).to_i
       "duration_#{duration_multiple}"
@@ -52,7 +64,7 @@ module DiatoArranger
       bars = []
       bar = []
       current_bar_length = Rational(0)
-      @arrangement.map do |playing_instruction| 
+      @arrangement.map do |playing_instruction|
         bar << case playing_instruction
         when PlayableNote then
           "<div class='note #{duration_class(playing_instruction.duration)}'>" +
@@ -62,7 +74,7 @@ module DiatoArranger
             "<span class='letter #{playing_instruction.direction}'>#{playing_instruction.note.to_s(false)}</span>" +
           "</div>\n"
         when UnplayableNote then
-          "<div class='note unplayable #{duration_class(playing_instruction.duration)}'>" + 
+          "<div class='note unplayable #{duration_class(playing_instruction.duration)}'>" +
             "<span class='accompaniment #{playing_instruction.direction}'>#{playing_instruction.accompaniment}</span>" +
             "<span class='duration'>#{duration_symbol(playing_instruction.duration)}</span>" +
             "<span class='instruction'>?</span>" +

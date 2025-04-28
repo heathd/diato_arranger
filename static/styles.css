@@ -57,3 +57,9 @@ form.abcform textarea {
   width: 60em;
   height: 20em;
 }
+
+.music {
+  width: 50em;
+  height: 50em;
+  background-color: #ded;
+}
