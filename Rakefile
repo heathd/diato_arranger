@@ -1,8 +1,6 @@
-require 'rake/testtask'
+require 'bundler/setup'
+require 'rspec/core/rake_task'
 
-desc "Run all tests"
-Rake::TestTask.new do |t|
-  t.pattern = "test/unit/**/*_test.rb"
-end
+RSpec::Core::RakeTask.new(:spec)
 
-task :default => :test
+task :default => :spec
