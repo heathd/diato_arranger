@@ -18,9 +18,14 @@
 <body>
 <h1>Music arrangement</h1>
 
-<div class='music' data-music="f/5:8d f/5:8d e/5:4d e/5:4d e/5:4d e/5:4d e/5:4d">
-</div>
+<canvas id="music" width="400" height="400"></canvas>
 
 <%= content %>
+
+<% if ENV['RACK_ENV'] == 'development' %>
+  <script type="module" src="http://localhost:5173/src/main.js"></script>
+<% else %>
+  <script type="module" src="/static/dist/main.js"></script>
+<% end %>
 </body>
 </html>

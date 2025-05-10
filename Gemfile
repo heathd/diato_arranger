@@ -1,14 +1,14 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 ruby File.read(File.dirname(__FILE__) + "/.ruby-version")
 
-gem 'rack'
+gem 'sinatra'
+gem 'puma'
 gem 'treetop'
+gem 'rack'
 
 group :development, :test do
-  gem 'shotgun'
-  gem 'rake'
-  gem 'rspec', '~> 3.12'
+  gem 'rspec'
+  gem 'pry'
   # gem 'debugger'
 end
-
