@@ -9,6 +9,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
+    },
+    cors: {
+      origin: ['http://0.0.0.0:9292', 'http://localhost:9292'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      credentials: true
     }
   },
   build: {

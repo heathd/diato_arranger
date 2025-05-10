@@ -4,28 +4,28 @@
 <title>Arrangement</title>
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 
-
   <!-- Support Sources -->
   <script src="/static/vendor/jquery.js"></script>
   <script src="/static/vendor/raphael.js"></script>
 
   <!-- VexFlow Compiled Source -->
   <script src="/static/vendor/vexflow-min.js"></script>
-  <script src="/static/render-music.js"></script>
 
 </head>
 
 <body>
 <h1>Music arrangement</h1>
 
-<canvas id="music" width="400" height="400"></canvas>
+<div id="music" style="width:400px; height:500px;"></div>
 
 <%= content %>
 
 <% if ENV['RACK_ENV'] == 'development' %>
+  <script type="module" src="http://localhost:5173/@vite/client"></script>
   <script type="module" src="http://localhost:5173/src/main.js"></script>
 <% else %>
   <script type="module" src="/static/dist/main.js"></script>
 <% end %>
+
 </body>
 </html>

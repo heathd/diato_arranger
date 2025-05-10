@@ -1,15 +1,28 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
+    base64 (0.2.0)
+    coderay (1.1.3)
     diff-lcs (1.6.1)
+    logger (1.7.0)
+    method_source (1.1.0)
+    mustermann (3.0.3)
+      ruby2_keywords (~> 0.0.1)
     nio4r (2.7.4)
     polyglot (0.3.5)
+    pry (0.15.2)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
     puma (6.6.0)
       nio4r (~> 2.0)
     rack (3.1.14)
-    rackup (2.2.1)
-      rack (>= 3)
-    rake (13.2.1)
+    rack-protection (4.1.1)
+      base64 (>= 0.1.0)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
+    rack-session (2.1.1)
+      base64 (>= 0.1.0)
+      rack (>= 3.0.0)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -23,6 +36,15 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.3)
+    ruby2_keywords (0.0.5)
+    sinatra (4.1.1)
+      logger (>= 1.6.0)
+      mustermann (~> 3.0)
+      rack (>= 3.0.0, < 4)
+      rack-protection (= 4.1.1)
+      rack-session (>= 2.0.0, < 3)
+      tilt (~> 2.0)
+    tilt (2.6.0)
     treetop (1.6.14)
       polyglot (~> 0.3)
 
@@ -31,11 +53,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pry
   puma
   rack
-  rackup
-  rake
-  rspec (~> 3.12)
+  rspec
+  sinatra
   treetop
 
 RUBY VERSION
