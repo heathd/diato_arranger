@@ -5,7 +5,7 @@ module DiatoArranger
         request = ::Rack::Request.new(env)
         handle(request)
       rescue NotFound
-        respond 404, "Not found"        
+        respond 404, "Not found"
       end
 
       def handle(request)
@@ -14,15 +14,15 @@ module DiatoArranger
 
       def respond(code, content, headers = {})
         [
-          code, 
-          {"Content-Type" => "text/html", 
-           "Content-Length" => content.to_s.size.to_s}.merge(headers),
+          code,
+          {"content-type" => "text/html",
+           "content-length" => content.to_s.size.to_s}.merge(headers),
           [content.to_s]
         ]
       end
 
       def redirect(url)
-        respond 302, "", "Location" => url
+        respond 302, "", "location" => url
       end
 
       def success(content)
