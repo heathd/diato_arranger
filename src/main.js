@@ -1,11 +1,13 @@
 import { Renderer, Stave, StaveNote, Formatter, Annotation } from 'vexflow';
+import { AccordionChordChart } from './accordionChords';
+import { AccordionLayout } from './accordionLayout';
 
 function initRenderer() {
   const renderer = new Renderer(document.getElementById('music'), Renderer.Backends.SVG);
   renderer.resize(400, 500);
   const context = renderer.getContext();
 
-  const stave = new Stave(10, 60, 380);
+  const stave = new Stave(20, 150, 380);
   stave.addClef("treble").addTimeSignature("4/4");
   stave.setContext(context).draw();
 
@@ -35,24 +37,12 @@ function parseMusic(musicData) {
 }
 
 function renderChordDiagram(bbox, chordName) {
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  rect.setAttribute('x', bbox.x + bbox.width/2 - 10); // center above text
-  rect.setAttribute('y', bbox.y - 25); // above the text
-  rect.setAttribute('width', '20');
-  rect.setAttribute('height', '20');
-  rect.setAttribute('fill', 'red');
-  rect.setAttribute('stroke', 'black');
-  rect.setAttribute('stroke-width', '2');
-  g.appendChild(rect);
-  const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  text.setAttribute('x', bbox.x + bbox.width/2); // center in box
-  text.setAttribute('y', bbox.y - 10); // vertically center in box
-  text.setAttribute('text-anchor', 'middle');
-  text.setAttribute('dominant-baseline', 'middle');
-  text.setAttribute('font-size', '12px');
-  text.textContent = chordName;
-  g.appendChild(text);
+  const chart = new AccordionChordChart();
+  const layout = new AccordionLayout();
+  let chordLayout = layout.findChordPositions(chordName);
+
+  const g = chart.drawChordChart(chordName, chordLayout.offset, chordLayout.buttonsPressed);
+  g.setAttribute('transform', `translate(${bbox.x + bbox.width/2 - 40}, ${bbox.y - 100})`);
   return g;
 }
 
@@ -81,7 +71,7 @@ async function renderMusic(musicData) {
 }
 
 // Initial render with chord symbols
-const musicData = "f/5:8d:Am f/5:8d:Am e/5:4d:G e/5:4d:G e/5:4d:C e/5:4d:C e/5:4d:F";
+const musicData = "f/5:8d:Am f/5:8d:Bb f/5:8d:Fm";
 renderMusic(musicData);
 
 // Hot Module Replacement (HMR) - Remove this in production
